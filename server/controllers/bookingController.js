@@ -4,43 +4,81 @@ import Booking from "../model/bookingModel.js";
 import Driver from "../model/driverModel.js";
 import Delivery from "../model/deliveryModel.js";
 import Cylinder from "../model/cylinderModel.js";
+import History from "../model/historyModel.js";
 
 
 
-export const createBooking = async (req, res) => {
-  try {
-    const booking = new Booking({
-  ...req.body,
-  customerId: req.body.customerId
-});
 
-    await booking.save();
-
-    // 👇 AUTO ASSIGN DRIVER (ADDED)
-    const drivers = await Driver.find();
-    if (drivers.length > 0) {
-      const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
-
-      await Delivery.create({
-  driverId: randomDriver._id,
-  driverName: randomDriver.name,
-  cylinderId: req.body.cylinderId,
-  orderId: booking._id,
-  status: "Assigned"
-});
+const mapTypeToCategory = (type)=>{
+  const t = type.toLowerCase();
+  if(t.includes("lpg") || t.includes("domestic")) return "Domestic";
+  if(t.includes("png") || t.includes("cng") || t.includes("commercial")) return "Commercial";
+  if(t.includes("oxygen") || t.includes("medical")) return "Medical";
+  if(t.includes("nitrogen") || t.includes("argon") || t.includes("industrial")) return "Industrial";
+  return null;
+};
 
 
-      await Cylinder.findOneAndUpdate(
-        { cylinderId: req.body.cylinderId },
-        { status: "Assigned" }
-      );
+
+export const createBooking = async (req,res)=>{
+  try{
+    const category = mapTypeToCategory(req.body.type);
+
+    const freeCylinder = await Cylinder.findOne({
+      category: category,
+      status: "Empty"
+    });
+
+    if(!freeCylinder){
+      return res.status(404).json({message:"No cylinder available"});
     }
 
-    res.status(201).json({ message: "Booking Successful & Driver Assigned" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const booking = await Booking.create({
+      ...req.body,
+      category: category,
+      cylinderId: freeCylinder.cylinderId
+    });
+
+    // HISTORY #1 — booking created
+    await History.create({
+      cylinderId: booking.cylinderId,
+      fromOwner: "Warehouse",
+      toOwner: booking.name,
+      driverName: "Not Assigned",
+      action: "Booking Created"
+    });
+
+    const driver = await Driver.findOne();
+
+    if (!driver) {
+      return res.status(200).json({ message:"Booking saved, but no driver available yet" });
+    }
+
+    const delivery = await Delivery.create({
+      orderId: booking._id,
+      driverId: driver._id,
+      cylinderId: freeCylinder.cylinderId,
+      status:"Assigned"
+    });
+
+    await Cylinder.findByIdAndUpdate(freeCylinder._id,{status:"Assigned"});
+
+    // HISTORY #2 — driver assigned
+    await History.create({
+      cylinderId: booking.cylinderId,
+      fromOwner: "Warehouse",
+      toOwner: booking.name,
+      driverName: driver.name,
+      action: "Driver Assigned"
+    });
+
+    res.json({message:"Booking Successful"});
+  }
+  catch(err){
+    res.status(500).json({message:err.message});
   }
 };
+
 
 
 export const getAllBookings = async (req, res) => {
@@ -94,7 +132,7 @@ export const deleteBooking = async (req,res)=>{
   }
 };
 
-export const getUserTracking = async (req,res)=>{
+export const getUserTracking = async(req,res)=>{
   const { email } = req.params;
 
   const data = await Booking.aggregate([
@@ -106,7 +144,15 @@ export const getUserTracking = async (req,res)=>{
         foreignField:"orderId",
         as:"delivery"
     }},
-    { $unwind:{path:"$delivery", preserveNullAndEmptyArrays:true}},
+    { $unwind:"$delivery" },
+
+    { $lookup:{
+        from:"drivers",
+        localField:"delivery.driverId",
+        foreignField:"_id",
+        as:"driver"
+    }},
+    { $unwind:"$driver" },
 
     { $lookup:{
         from:"cylinders",
@@ -114,9 +160,23 @@ export const getUserTracking = async (req,res)=>{
         foreignField:"cylinderId",
         as:"cylinder"
     }},
-    { $unwind:{path:"$cylinder", preserveNullAndEmptyArrays:true}}
+    { $unwind:"$cylinder" }
   ]);
 
   res.json(data);
 };
+
+export const completeDelivery = async(req,res)=>{
+  const delivery = await Delivery.findById(req.params.id);
+
+  await Delivery.findByIdAndUpdate(req.params.id,{ status:"Delivered" });
+
+  await Cylinder.findOneAndUpdate(
+    { cylinderId:delivery.cylinderId },
+    { status:"Empty" }
+  );
+
+  res.json({message:"Delivery Completed"});
+};
+
 

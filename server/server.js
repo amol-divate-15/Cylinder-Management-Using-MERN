@@ -8,7 +8,11 @@ import bookingRoutes from "./routes/bookingRoutes.js"
 import cylinderRoute from "./routes/cylinderRoutes.js";
 import driverRoute from "./routes/driverRoutes.js";
 import reportRoute from "./routes/reportRoutes.js";
-import historyRoute from "./routes/historyRoutes.js";
+
+
+
+import historyRoutes from "./routes/historyRoutes.js";
+
 
 
 
@@ -26,7 +30,9 @@ app.use("/api/booking", bookingRoutes);
 app.use("/api/cylinders", cylinderRoute);
 app.use("/api/drivers", driverRoute);
 app.use("/api/reports", reportRoute);
-app.use("/api/history", historyRoute);
+
+app.use("/api/history", historyRoutes);
+
 
 
 mongoose

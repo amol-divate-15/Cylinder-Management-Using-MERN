@@ -22,6 +22,8 @@ export default function RegisterModal({ isOpen, onClose, openLogin }) {
         try {
             const res=await axios.post("http://localhost:5000/api/user/register",form);
       alert("Registered Successfully");
+      localStorage.setItem("loggedUser", JSON.stringify(res.data.user));
+
 
       onClose();      // close Register popup
     openLogin();    // open Login popup

@@ -1,6 +1,8 @@
 import express from "express";
-import { getAllHistory } from "../controllers/historyController.js";
+import { getHistory } from "../controllers/historyController.js";
 
 const router = express.Router();
-router.get("/", getAllHistory);
+
+router.get("/", getHistory);
+
 export default router;

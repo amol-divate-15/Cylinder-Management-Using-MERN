@@ -34,9 +34,6 @@ export default function DashboardPopup({ isOpen, onClose }) {
             👥 All Users
             </button>
 
-            
-            
-            <button className="hover:bg-red-100 p-2 rounded-lg">🎭 Assign Role</button>
           </div>
 
           <div className="p-4 text-center">

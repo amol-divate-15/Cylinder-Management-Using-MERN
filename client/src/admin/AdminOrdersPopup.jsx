@@ -23,10 +23,13 @@ export default function AdminOrdersPopup({ close }) {
               <th className="border p-2">Email</th>
               <th className="border p-2">Address</th>
               <th className="border p-2">Price</th>
+              <th className="border p-2">Type</th>
+
               <th className="border p-2">Date</th>
               <th className="border p-2">Driver</th>
 <th className="border p-2">Delivery Status</th>
 <th className="border p-2">Action</th>
+
 <th className="border p-2">Mark Delivered</th>
 
 
@@ -42,6 +45,8 @@ export default function AdminOrdersPopup({ close }) {
                 <td className="border p-2">{o.email}</td>
                 <td className="border p-2">{o.address}</td>
                 <td className="border p-2">₹{o.price}</td>
+                <td className="border p-2 font-semibold text-blue-700">{o.type}</td>
+
                 <td className="border p-2">
   {o.delivery?.driverName || "Not Assigned"}
 </td>

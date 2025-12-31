@@ -4,6 +4,8 @@ import { getAllBookings } from "../controllers/bookingController.js";
 import { getAdminOrders } from "../controllers/bookingController.js";
 import { deleteBooking } from "../controllers/bookingController.js";
 import { getUserTracking } from "../controllers/bookingController.js";
+import { completeDelivery } from "../controllers/bookingController.js";
+
 
 
 
@@ -15,6 +17,7 @@ router.get("/all", getAllBookings);
 router.get("/admin-orders", getAdminOrders);
 router.delete("/delete/:id", deleteBooking);
 router.get("/track/:email", getUserTracking);
+router.put("/complete/:id", completeDelivery);
 
 
 

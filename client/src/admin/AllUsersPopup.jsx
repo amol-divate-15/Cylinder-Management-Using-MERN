@@ -15,7 +15,7 @@ export default function AllUsersPopup({ isOpen, onClose }) {
   };
 
   const deleteUser = async () => {
-    await axios.delete(`http://localhost:5000/api/delete/${selected._id}`);
+    await axios.delete(`http://localhost:5000/api/user/delete/${selected._id}`);
     alert("User Deleted");
     setSelected(null);
     fetchUsers(); // refresh list

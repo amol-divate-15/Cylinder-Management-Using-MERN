@@ -94,7 +94,7 @@ Reports
   
 <div className="flex-1 flex flex-col items-center justify-start text-white text-2xl gap-6 pt-16">
   <h2 className="text-red-600 text-4xl font-bold mb-4 underline">
-    Admin Page
+    {/* Admin Page */}
   </h2>
 
   <img src={logo} alt="logo" className="w-40 h-40 rounded-full" />

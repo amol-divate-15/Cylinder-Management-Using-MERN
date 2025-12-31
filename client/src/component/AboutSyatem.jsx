@@ -1,7 +1,21 @@
 import React from "react";
 import logo from "../assets/logo.gif";
+import { useState } from 'react';
+import RegisterModal from './RegisterModal';
+import LoginModal from './loginModel';
+import Dashboard from "./Dashboard";
+import AdminHome from '../admin/AdminHome';
+import AdminLoginModal from "../admin/AdminLoginModal";
+import { useNavigate } from "react-router-dom";
+
 
 export default function AboutSystem() {
+  const [open, setOpen] = useState(false);
+      const [loginOpen, setLoginOpen] = useState(false);
+      const [userName, setUserName] = useState("");
+      const [showDashboard, setShowDashboard] = useState(false);
+      const [adminOpen, setAdminOpen] = useState(false);
+   const navigate = useNavigate();
   return (
     <div className="w-screen h-screen flex bg-white-500">
 
@@ -11,9 +25,18 @@ export default function AboutSystem() {
 
         <button className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">Home</button>
         <button className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">About</button>
-        <button className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">Register</button>
-        <button className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">Login</button>
-        <button className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">Admin</button>
+        <button onClick={() => setOpen(true)} className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">
+    Register
+  </button>
+        <button  onClick={() => setLoginOpen(true)} className="hover:bg-red-800 w-full text-center py-2 rounded-md transition">
+    Login
+  </button>
+        <button
+  onClick={() => setAdminOpen(true)}
+  className="hover:bg-red-800 w-full text-center py-2 rounded-md transition"
+>
+  Admin
+</button>
       </div>
 
       {/* MAIN */}
@@ -61,6 +84,13 @@ export default function AboutSystem() {
 
         </div>
       </div>
+      <RegisterModal isOpen={open} onClose={() => setOpen(false)} openLogin={() => setLoginOpen(true)}/>
+        <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} onLoginSuccess={(name) => { setUserName(name); setShowDashboard(true);}}/>
+          <AdminLoginModal 
+            isOpen={adminOpen}
+            onClose={() => setAdminOpen(false)}
+            onAdminSuccess={() => navigate("/admin")}
+          />
     </div>
   );
 }

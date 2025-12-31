@@ -19,7 +19,9 @@ const handleLogin = async (e) => {
   e.preventDefault();
   try {
     const res = await axios.post("http://localhost:5000/api/user/login", login);
-    onLoginSuccess(res.data.user.name);   // send name to Home
+    localStorage.setItem("loggedUser", JSON.stringify(res.data.user));
+onLoginSuccess(res.data.user.name);
+   // send name to Home
     onClose(); 
     navigate("/dashboard", {
   state: { userName: res.data.user.name }
